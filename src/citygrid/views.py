@@ -26,7 +26,7 @@ def model_query(request):
     """
     POST request.body= model,filters,order_by
     """
-    dc = json.loads(request.body)
+    dc = json.loads(request.body.decode('utf-8'))
     fun_name = dc.pop('fun')
     fun = getattr(search_func,fun_name)
     out_list = fun(**dc)
