@@ -11,6 +11,7 @@ from django.db import models
 
 
 class TInfoMain(models.Model):
+    """监督员案件"""
     #id = models.FloatField()
     taskid = models.CharField(primary_key=True, max_length=20)
     streetcode = models.CharField(max_length=4, blank=True, null=True)

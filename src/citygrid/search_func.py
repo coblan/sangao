@@ -3,6 +3,7 @@ from .models import TInfoMain,TInsCaseMain
 from django.forms.models import model_to_dict
 
 def get_ducha(page=1,perpage=200):
+    """获取赵巷的督查员案件"""
     qu = TInsCaseMain.objects.filter(status__in=[3 ,-2,-1],streetcode =1806).order_by('-discovertime').distinct()
     qu= append_cat(qu, 'T_INS_CASE_MAIN')
     
@@ -19,6 +20,7 @@ def get_ducha(page=1,perpage=200):
     return ls
 
 def get_jiandu(start,end,page=1,perpage=200):
+    """获取赵巷的监督员案件"""
     qu = TInfoMain.objects.filter(status__in=[0,1,2,3,4,5,6,7,8,15,16,17],
                                   discovertime__gt=start,
                                   discovertime__lte=end,
@@ -38,6 +40,14 @@ def get_jiandu(start,end,page=1,perpage=200):
         ls.append(dc)
     return ls    
 
+def jianduTask(taskids): 
+    
+    query =  TInfoMain.objects.filter(taskid__in = taskids)
+    ls = []
+    for item in query:
+        dc = model_to_dict(item)
+        ls.append(dc)
+    return ls 
 
 def append_cat(query,model_name):
     #return query.extra(select={'bcname':'"T_CLASSINFO"."infobcname"','scname':'T_CLASSINFO.infoscname'},
