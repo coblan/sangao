@@ -299,3 +299,22 @@ class TClassinfo(models.Model):
     class Meta:
         managed = False
         db_table = 'T_CLASSINFO'
+        
+        
+        
+    
+class TKeeperstrack(models.Model):
+    """监督员轨迹"""
+    #id = models.IntegerField()
+    keepersn = models.CharField(max_length=30)
+    tracktime = models.DateField()
+    coordx = models.FloatField()
+    coordy = models.FloatField()
+    workgridcode = models.CharField(max_length=8, blank=True, null=True)
+    inserttime = models.DateField()
+    errordesc = models.CharField(max_length=1000, blank=True, null=True)
+    errorcode = models.CharField(max_length=1, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'T_KEEPERSTRACK'
