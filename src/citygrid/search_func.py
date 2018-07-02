@@ -51,13 +51,15 @@ def jianduTask(taskids):
         ls.append(dc)
     return ls 
 
-def keeperTrack(keepers,startTime,endTime):
-    dc={}
-    for keeper in TKeeperstrack.objects.filter(keepersn__in=keepers,tracktime__gte=startTime,tracktime__lte=endTime).order_by('tracktime'):
-        if keeper.keepersn not in dc:
-            dc[keeper.keepersn]=[]
-        dc[keeper.keepersn].append(model_to_dict(keeper))
-    return dc
+def keeperTrack(keeper,startTime,endTime):
+    ls=[]
+    for track in TKeeperstrack.objects.filter(keepersn=keeper,tracktime__gte=startTime,tracktime__lte=endTime).order_by('tracktime'):
+        ls.append({
+            'coordx':track.coordx,
+            'coordy':track.coordy,
+            'tracktime':track.tracktime.strftime('%Y-%m-%d %H:%M:%S')
+        })
+    return ls
     
 
 
