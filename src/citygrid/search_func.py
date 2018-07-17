@@ -20,9 +20,10 @@ def get_ducha(page=1,perpage=200):
     return ls
 
 def get_jiandu(start,end,page=1,perpage=200):
-    """获取赵巷的监督员案件"""
-    qu = TInfoMain.objects.filter(status__in=[0,1,2,3,4,5,6,7,8,15,16,17],
-                                  discovertime__gt=start,
+    """获取赵巷的监督员案件
+    status__in=[0,1,2,3,4,5,6,7,8,15,16,17],
+    """
+    qu = TInfoMain.objects.filter( discovertime__gt=start,
                                   discovertime__lte=end,
                                   streetcode =1806)\
         .order_by('-discovertime').distinct()
