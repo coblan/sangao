@@ -2,9 +2,11 @@
 from .models import TInfoMain,TInsCaseMain,TKeeperstrack
 from django.forms.models import model_to_dict
 
-def get_ducha(page=1,perpage=200):
-    """获取赵巷的督查员案件"""
-    qu = TInsCaseMain.objects.filter(status__in=[3 ,-2,-1],streetcode =1806).order_by('-discovertime').distinct()
+def get_ducha(page=1,perpage=200,streetcode =1806):
+    """获取赵巷的督查员案件
+    @streetcode:1806是赵巷
+    """
+    qu = TInsCaseMain.objects.filter(status__in=[3 ,-2,-1],streetcode =streetcode).order_by('-discovertime').distinct()
     qu= append_cat(qu, 'T_INS_CASE_MAIN')
     
     start= (page-1) * perpage
@@ -19,13 +21,16 @@ def get_ducha(page=1,perpage=200):
         ls.append(dc)
     return ls
 
-def get_jiandu(start,end,page=1,perpage=200):
-    """获取赵巷的监督员案件
+def get_jiandu(start,end,page=1,perpage=200,streetcode =1806):
+    """获取监督员案件
+    @streetcode: 1086 是赵巷
+    
     status__in=[0,1,2,3,4,5,6,7,8,15,16,17],
+    
     """
     qu = TInfoMain.objects.filter( discovertime__gt=start,
                                   discovertime__lte=end,
-                                  streetcode =1806)\
+                                  streetcode=streetcode)\
         .order_by('-discovertime').distinct()
     qu= append_cat(qu, 'T_INFO_MAIN')
     
