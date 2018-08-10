@@ -8,7 +8,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-
+from . model_pkg.taskinfo import TTaskinfo
 
 class TInfoMain(models.Model):
     """监督员案件"""
@@ -49,7 +49,8 @@ class TInfoMain(models.Model):
     lastarrivetime = models.DateField(blank=True, null=True)
     lastsolvingtime = models.DateField(blank=True, null=True)
     supervisetime = models.DateField(blank=True, null=True)
-    deptcode = models.CharField(max_length=10)
+    #deptcode = models.CharField(max_length=10)
+    deptcode = models.ForeignKey(to='TDeptsinfo',db_constraint=False,to_field='deptcode',db_column='DEPTCODE', blank=True, null=True)
     haslead = models.BooleanField()
     hasback = models.BooleanField()
     verifyresult = models.BooleanField()
@@ -249,7 +250,8 @@ class TInsCaseMain(models.Model):
     dueresult = models.CharField(max_length=20, blank=True, null=True)
     awardamount = models.IntegerField(blank=True, null=True)
     hascreatedfromturntrack = models.CharField(max_length=20, blank=True, null=True)
-    deptcode = models.CharField(max_length=20, blank=True, null=True)
+    #deptcode = models.CharField(max_length=20, blank=True, null=True)
+    deptcode = models.ForeignKey(to='TDeptsinfo',db_constraint=False,to_field='deptcode', blank=True, null=True)
     fromusername = models.CharField(max_length=100, blank=True, null=True)
     isrediscuss = models.CharField(max_length=10, blank=True, null=True)
     isintervened = models.FloatField(blank=True, null=True)
@@ -318,3 +320,42 @@ class TKeeperstrack(models.Model):
     class Meta:
         managed = False
         db_table = 'T_KEEPERSTRACK'
+        
+
+
+class TDeptsinfo(models.Model):
+    """
+    tinfomain 中的  deptcode 外键  主者部门
+    """
+    id = models.IntegerField()
+    deptcode = models.CharField(max_length=10,unique=True)
+    deptname = models.CharField(max_length=100, blank=True, null=True)
+    deptaddress = models.CharField(max_length=200, blank=True, null=True)
+    phoneno = models.CharField(max_length=30, blank=True, null=True)
+    linkman = models.CharField(max_length=20, blank=True, null=True)
+    depttype = models.NullBooleanField()
+    note = models.CharField(max_length=500, blank=True, null=True)
+    inserttime = models.DateField()
+    status = models.CharField(max_length=1)
+    linkmanid = models.CharField(max_length=100, blank=True, null=True)
+    ordercode = models.BigIntegerField()
+    platformid = models.FloatField()
+    visible = models.FloatField()
+    streetcode = models.CharField(max_length=20, blank=True, null=True)
+    authorizeheshi = models.CharField(max_length=1)
+    authorizehecha = models.CharField(max_length=1)
+    sort = models.FloatField(blank=True, null=True)
+    upcode = models.CharField(max_length=20, blank=True, null=True)
+    self = models.CharField(max_length=20, blank=True, null=True)
+    authorizetuijin = models.CharField(max_length=1, blank=True, null=True)
+    tag = models.CharField(max_length=2, blank=True, null=True)
+    iscountalltime = models.FloatField(blank=True, null=True)
+    collectdeptlimits = models.CharField(max_length=20, blank=True, null=True)
+    ishotlinedept = models.FloatField(blank=True, null=True)
+    population = models.CharField(max_length=30, blank=True, null=True)
+    iscommunity = models.FloatField(blank=True, null=True)
+    relationunit = models.CharField(max_length=30, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'T_DEPTSINFO'
