@@ -1,6 +1,21 @@
 
 from .models import TInfoMain,TInsCaseMain,TKeeperstrack
+from . import models as citygrid_models
 from django.forms.models import model_to_dict
+
+def get_query(model,page=1,perpage=200,filters={}):
+    
+    model_cls = getattr ( citygrid_models,model)
+    query = model_cls.objects.filter(**filters)
+    
+    start= (page-1) * perpage
+    end = page*perpage
+    ls =[]
+    for item in query[start:end]:
+        dc = model_to_dict(item)
+        ls.append(dc)
+    return ls  
+
 
 def get_ducha(page=1,perpage=200,streetcode =1806):
     """获取赵巷的督查员案件
