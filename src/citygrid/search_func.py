@@ -28,7 +28,7 @@ def get_ducha(page=1,perpage=200,streetcode =1806):
     end = page*perpage
     ls =[]
     for item in qu[start:end]:
-        dc = model_to_dict(item)
+        dc = model_to_dict(item,exclude=['deptcode'])
         dc.update({
             'bcname':item.bcname,
             'scname':item.scname,
