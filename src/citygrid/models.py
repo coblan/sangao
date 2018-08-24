@@ -251,7 +251,7 @@ class TInsCaseMain(models.Model):
     awardamount = models.IntegerField(blank=True, null=True)
     hascreatedfromturntrack = models.CharField(max_length=20, blank=True, null=True)
     #deptcode = models.CharField(max_length=20, blank=True, null=True)
-    deptcode = models.ForeignKey(to='TDeptsinfo',db_constraint=False,to_field='deptcode', blank=True, null=True)
+    deptcode = models.ForeignKey(to='TDeptsinfo',db_constraint=False,to_field='deptcode',db_column='DEPTCODE', blank=True, null=True)
     fromusername = models.CharField(max_length=100, blank=True, null=True)
     isrediscuss = models.CharField(max_length=10, blank=True, null=True)
     isintervened = models.FloatField(blank=True, null=True)
