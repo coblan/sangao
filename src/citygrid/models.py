@@ -8,7 +8,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from . model_pkg.taskinfo import TTaskinfo
+from . model_pkg.taskinfo import TTaskinfo,TInfoSolving
 
 class TInfoMain(models.Model):
     """监督员案件"""
@@ -327,7 +327,7 @@ class TDeptsinfo(models.Model):
     """
     tinfomain 中的  deptcode 外键  主者部门
     """
-    id = models.IntegerField()
+    #id = models.IntegerField()
     deptcode = models.CharField(max_length=10,unique=True)
     deptname = models.CharField(max_length=100, blank=True, null=True)
     deptaddress = models.CharField(max_length=200, blank=True, null=True)
@@ -359,3 +359,5 @@ class TDeptsinfo(models.Model):
     class Meta:
         managed = False
         db_table = 'T_DEPTSINFO'
+
+
