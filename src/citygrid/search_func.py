@@ -149,17 +149,18 @@ WHERE
     """  居委   村委     ratio * 5 """
     sovle= TInfoSolving.objects.filter(
         taskid=OuterRef('pk')).filter(
-        Q(executedeptcode='20601')|Q(deptcode='20601')).filter(
-        ~Q(status=3)
-    )
-    q1 = TTaskinfo.objects.filter(discovertime__gte=start,infosourceid__in=[10,68],discovertime__lte=end,).annotate(is_ok=Exists(sovle ))\
+        Q(executedeptcode='20601')|Q(deptcode='20601')).exclude(status=3).only('id')
+    
+    q1 = TTaskinfo.objects.filter(discovertime__gte=start,discovertime__lte=end,).filter(infosourceid__in=[10,68],)\
+        .annotate(is_ok=Exists(sovle ))\
         .filter( Q(deptcode='20601')| Q(is_ok=True))
     q1 = q1.annotate(three = Func(F('executedeptcode'), F('deptcode'),F('taskid'),function='F_REC_THREEDEPTNAME'))
     
     a1 =q1.values('three').annotate(shou_li = Count('three'))
     
   
-    q2 = TTaskinfo.objects.filter(endtime__gte=start,infosourceid__in=[10,68],endtime__lte=end,).annotate(is_ok=Exists(sovle ))\
+    q2 = TTaskinfo.objects.filter(endtime__gte=start,endtime__lte=end,).filter(infosourceid__in=[10,68],)\
+        .annotate(is_ok=Exists(sovle ))\
         .filter( Q(deptcode='20601')| Q(is_ok=True))
     
     #total =q2.count()
@@ -209,22 +210,22 @@ def zhaoxiang_grid_report(datestr):
     
     sovle= TInfoSolving.objects.filter(
         taskid=OuterRef('pk')).filter(
-        Q(executedeptcode='20601')|Q(deptcode='20601')).filter(
-        ~Q(status=3)
-    )    
-    q1 = TTaskinfo.objects.filter(streetcode='1806',infosourceid=1)\
+        Q(executedeptcode='20601')|Q(deptcode='20601')).exclude(status=3).only('id')
+    
+    q1 = TTaskinfo.objects.filter(discovertime__gte=crt_day_start,discovertime__lte=crt_day_end)\
+        .filter(streetcode='1806',infosourceid=1)\
         .filter(status__in=[3, 4, 5, 6, 7, 8, 9,100])\
-        .filter(discovertime__gte=crt_day_start,discovertime__lte=crt_day_end)\
         .annotate(is_exist=Exists(sovle )).filter(is_exist=True)
+    
     q1 = q1.annotate(three = Func(F('executedeptcode'), F('deptcode'),F('taskid'),function='F_REC_THREEDEPTNAME'))
     a1 = q1.values('three')\
         .annotate(count_all = Count(1))\
         .annotate(count_bu = Sum(Case( When(infotypename='部件',then=1),default=0), output_field=IntegerField() ) ) \
         .annotate(count_shi = Sum(Case(When(infotypename='事件', then=1),default=0 ),  output_field=IntegerField() ))
     
-    q2=TTaskinfo.objects.filter(streetcode='1806')\
+    q2=TTaskinfo.objects.filter(discovertime__gte=first_day_start,discovertime__lte=crt_day_end)\
+        .filter(streetcode='1806')\
         .filter(status__in=[3, 4, 5, 6, 7, 8, 9,100])\
-        .filter(discovertime__gte=first_day_start,discovertime__lte=crt_day_end)\
         .annotate(is_exist=Exists(sovle )).filter(is_exist=True)
     
     q2 = q2.annotate(three = Func(F('executedeptcode'), F('deptcode'),F('taskid'),function='F_REC_THREEDEPTNAME'))
