@@ -5,6 +5,7 @@ from django.forms.models import model_to_dict
 from django.db.models.aggregates import Count,Sum
 from django.db.models import Q,Exists, OuterRef,Func,F,Case,When,IntegerField,FloatField
 from django.db.models.functions import Cast
+from  django.utils.timezone import datetime,timedelta
 
 
 def get_query(model,page=1,perpage=200,filters={}):
@@ -187,13 +188,64 @@ WHERE
                                         default=0, output_field=FloatField()  )))\
         .annotate( man_yi_total=Sum(Case(When( allmanyiname_bf__in=['满意','基本满意','一般','不满意'] ,then=1  ),default=0  ,output_field=IntegerField() )) ) \
         .annotate(man_yi_ratio = Case(When(man_yi_total=0,then=0),default= F('man_yi')/F('man_yi_total') , output_field=FloatField() ))
+    a1=list(a1)
+    a2=list(a2_5)
     
     out_dict = {
-        'a1':list( a1),
-        'a2':list( a2_5)
+        'a1':a1,
+        'a2':a2
     }
 
     return out_dict
 
     
+def zhaoxiang_grid_report(datestr):
+    """
+    """
+    first_day_str = datetime.strptime(datestr,'%Y-%m-%d').replace(day=1).strftime('%Y-%m-%d')
+    crt_day_start = datestr+' 00:00:00'
+    crt_day_end =datestr+' 23:59:59'
+    first_day_start=first_day_str+' 00:00:00'
     
+    sovle= TInfoSolving.objects.filter(
+        taskid=OuterRef('pk')).filter(
+        Q(executedeptcode='20601')|Q(deptcode='20601')).filter(
+        ~Q(status=3)
+    )    
+    q1 = TTaskinfo.objects.filter(streetcode='1806',infosourceid=1)\
+        .filter(status__in=[3, 4, 5, 6, 7, 8, 9,100])\
+        .filter(discovertime__gte=crt_day_start,discovertime__lte=crt_day_end)\
+        .annotate(is_exist=Exists(sovle )).filter(is_exist=True)
+    q1 = q1.annotate(three = Func(F('executedeptcode'), F('deptcode'),F('taskid'),function='F_REC_THREEDEPTNAME'))
+    a1 = q1.values('three')\
+        .annotate(count_all = Count(1))\
+        .annotate(count_bu = Sum(Case( When(infotypename='部件',then=1),default=0), output_field=IntegerField() ) ) \
+        .annotate(count_shi = Sum(Case(When(infotypename='事件', then=1),default=0 ),  output_field=IntegerField() ))
+    
+    q2=TTaskinfo.objects.filter(streetcode='1806')\
+        .filter(status__in=[3, 4, 5, 6, 7, 8, 9,100])\
+        .filter(discovertime__gte=first_day_start,discovertime__lte=crt_day_end)\
+        .annotate(is_exist=Exists(sovle )).filter(is_exist=True)
+    
+    q2 = q2.annotate(three = Func(F('executedeptcode'), F('deptcode'),F('taskid'),function='F_REC_THREEDEPTNAME'))
+    
+    a2=q2 .filter(infosourceid= 36).values('three')\
+        .annotate(count_cun=Count(1  ))
+    
+    a3=q2.filter(infosourceid= 61).filter(three__isnull=True).values('reporter')\
+        .annotate(count_wei= Count(1)  )
+    
+    a4=q2.filter(infosourceid= 1).values('upkeepername')\
+        .annotate(count_keeper=Count(1))
+    
+    a1=list(a1)
+    a2=list(a2)
+    a3=list(a3)
+    a4=list(a4)
+    out_dict = {
+        'a1':a1,
+        'a2':a2,
+        'a3':a3,
+        'a4':a4
+    }
+    return out_dict
