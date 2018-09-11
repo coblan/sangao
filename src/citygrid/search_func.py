@@ -106,13 +106,21 @@ def zhaoxiang_hotline_report(start,end):
     }
     cursor = connection.cursor()
     cursor.execute(hotline_shouli%dc )
-    a1 = []
-    for i in cursor:
-        a1.append(i)
+      
+    a1=[]
+    for row in cursor:
+        row_dc ={}
+        for col_data, col in zip(row, cursor.description):
+            row_dc[col[0]]=col_data
+        a1.append(row_dc)
+        
     cursor.execute(hotline_2_you%dc)
     a2=[]
     for i in cursor:
-        a2.append(i)  
+        row_dc ={}
+        for col_data, col in zip(row, cursor.description):
+            row_dc[col[0]]=col_data
+        a2.append(row_dc)
     
     return {
         'a1':a1,
