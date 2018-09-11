@@ -113,10 +113,10 @@ def zhaoxiang_hotline_report(start,end):
         for col_data, col in zip(row, cursor.description):
             row_dc[col[0]]=col_data
         a1.append(row_dc)
-        
+    
     cursor.execute(hotline_2_you%dc)
     a2=[]
-    for i in cursor:
+    for row in cursor:
         row_dc ={}
         for col_data, col in zip(row, cursor.description):
             row_dc[col[0]]=col_data
@@ -124,7 +124,7 @@ def zhaoxiang_hotline_report(start,end):
     
     return {
         'a1':a1,
-        'a2':a2
+        'a2':a2,
     }
 
 
