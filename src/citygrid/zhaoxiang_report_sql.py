@@ -1,0 +1,487 @@
+hotline_shouli="""
+SELECT
+	F_REC_THREEDEPTNAME (
+		"T_TASKINFO"."EXECUTEDEPTCODE",
+		"T_TASKINFO"."DEPTCODE",
+		"T_TASKINFO"."TASKID"
+	) AS "THREE",
+	COUNT (
+		F_REC_THREEDEPTNAME (
+			"T_TASKINFO"."EXECUTEDEPTCODE",
+			"T_TASKINFO"."DEPTCODE",
+			"T_TASKINFO"."TASKID"
+		)
+	) AS "SHOU_LI"
+FROM
+	"T_TASKINFO"
+WHERE
+	(
+		discovertime BETWEEN TO_DATE ( '%(start_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+		AND TO_DATE ( '%(end_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+		AND "T_TASKINFO"."INFOSOURCEID" IN (10.0, 68.0)
+		AND (
+			"T_TASKINFO"."DEPTCODE" = 20601
+			OR  EXISTS (
+				SELECT
+					U0."ID"
+				FROM
+					"T_INFO_SOLVING" U0
+				WHERE
+					(
+						U0."TASKID" = (T_TASKINFO."TASKID")
+						AND (
+							U0."EXECUTEDEPTCODE" = 20601
+							OR U0."DEPTCODE" = 20601
+						)
+						AND NOT (
+							U0."STATUS" = 3.0
+							AND U0."STATUS" IS NOT NULL
+						)
+					)
+			) 
+		)
+	)
+GROUP BY
+	F_REC_THREEDEPTNAME (
+		"T_TASKINFO"."EXECUTEDEPTCODE",
+		"T_TASKINFO"."DEPTCODE",
+		"T_TASKINFO"."TASKID"
+	)
+"""
+hotline_2="""
+SELECT
+	F_REC_THREEDEPTNAME (
+		"T_TASKINFO"."EXECUTEDEPTCODE",
+		"T_TASKINFO"."DEPTCODE",
+		"T_TASKINFO"."TASKID"
+	) AS "THREE",
+	COUNT (
+		F_REC_THREEDEPTNAME (
+			"T_TASKINFO"."EXECUTEDEPTCODE",
+			"T_TASKINFO"."DEPTCODE",
+			"T_TASKINFO"."TASKID"
+		)
+	) AS "SOU_COUNT",
+	SUM (
+		CASE
+		WHEN "T_TASKINFO"."ISFIRSTCONTACT" = 1.0 THEN
+			1
+		ELSE
+			0
+		END
+	) AS "FIRST_YES",
+	SUM (
+		CASE
+		WHEN "T_TASKINFO"."ISFIRSTCONTACT" = 0.0 THEN
+			1
+		ELSE
+			0
+		END
+	) AS "FIRST_NO",
+	(
+		SUM (
+			CASE
+			WHEN "T_TASKINFO"."ISFIRSTCONTACT" = 1.0 THEN
+				1
+			ELSE
+				0
+			END
+		) + SUM (
+			CASE
+			WHEN "T_TASKINFO"."ISFIRSTCONTACT" = 0.0 THEN
+				1
+			ELSE
+				0
+			END
+		)
+	) AS "FIRST_TOTAL",
+	CASE
+WHEN (
+	SUM (
+		CASE
+		WHEN "T_TASKINFO"."ISFIRSTCONTACT" = 1.0 THEN
+			1
+		ELSE
+			0
+		END
+	) + SUM (
+		CASE
+		WHEN "T_TASKINFO"."ISFIRSTCONTACT" = 0.0 THEN
+			1
+		ELSE
+			0
+		END
+	)
+) = 0 THEN
+	1
+ELSE
+	(
+		SUM (
+			CASE
+			WHEN "T_TASKINFO"."ISFIRSTCONTACT" = 1.0 THEN
+				1
+			ELSE
+				0
+			END
+		) / (
+			SUM (
+				CASE
+				WHEN "T_TASKINFO"."ISFIRSTCONTACT" = 1.0 THEN
+					1
+				ELSE
+					0
+				END
+			) + SUM (
+				CASE
+				WHEN "T_TASKINFO"."ISFIRSTCONTACT" = 0.0 THEN
+					1
+				ELSE
+					0
+				END
+			)
+		)
+	)
+END AS "FIRST_RATIO",
+ SUM (
+	CASE
+	WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '实际解决' THEN
+		1
+	ELSE
+		0
+	END
+) AS "REAL_SOLVE",
+ SUM (
+	CASE
+	WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '解释说明' THEN
+		1
+	ELSE
+		0
+	END
+) AS "JIE_SOLVE",
+ (
+	SUM (
+		CASE
+		WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '实际解决' THEN
+			1
+		ELSE
+			0
+		END
+	) + SUM (
+		CASE
+		WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '解释说明' THEN
+			1
+		ELSE
+			0
+		END
+	)
+) AS "TOTAL_SOLVE",
+ CASE
+WHEN (
+	SUM (
+		CASE
+		WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '实际解决' THEN
+			1
+		ELSE
+			0
+		END
+	) + SUM (
+		CASE
+		WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '解释说明' THEN
+			1
+		ELSE
+			0
+		END
+	)
+) = 0 THEN
+	0
+ELSE
+	(
+		SUM (
+			CASE
+			WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '实际解决' THEN
+				1
+			ELSE
+				0
+			END
+		) / (
+			SUM (
+				CASE
+				WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '实际解决' THEN
+					1
+				ELSE
+					0
+				END
+			) + SUM (
+				CASE
+				WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '解释说明' THEN
+					1
+				ELSE
+					0
+				END
+			)
+		)
+	)
+END AS "REAL_SOLVE_RATIO",
+ CASE
+WHEN (
+	SUM (
+		CASE
+		WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '实际解决' THEN
+			1
+		ELSE
+			0
+		END
+	) + SUM (
+		CASE
+		WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '解释说明' THEN
+			1
+		ELSE
+			0
+		END
+	)
+) = 0 THEN
+	0
+ELSE
+	(
+		SUM (
+			CASE
+			WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '解释说明' THEN
+				1
+			ELSE
+				0
+			END
+		) / (
+			SUM (
+				CASE
+				WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '实际解决' THEN
+					1
+				ELSE
+					0
+				END
+			) + SUM (
+				CASE
+				WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '解释说明' THEN
+					1
+				ELSE
+					0
+				END
+			)
+		)
+	)
+END AS "JIE_SOLVE_RATIO",
+ SUM (
+	CASE
+	WHEN "T_TASKINFO"."ALLMANYINAME_BF" = '满意' THEN
+		1
+	WHEN "T_TASKINFO"."ALLMANYINAME_BF" = '基本满意' THEN
+		0.8
+	WHEN "T_TASKINFO"."ALLMANYINAME_BF" = '一般' THEN
+		0.6
+	ELSE
+		0
+	END
+) AS "MAN_YI",
+ SUM (
+	CASE
+	WHEN "T_TASKINFO"."ALLMANYINAME_BF" IN (
+		'满意',
+		'不满意',
+		'基本满意',
+		'一般'
+	) THEN
+		1
+	ELSE
+		0
+	END
+) AS "MAN_YI_TOTAL",
+ CASE
+WHEN SUM (
+	CASE
+	WHEN "T_TASKINFO"."ALLMANYINAME_BF" IN (
+		'满意',
+		'不满意',
+		'基本满意',
+		'一般'
+	) THEN
+		1
+	ELSE
+		0
+	END
+) = 0 THEN
+	0
+ELSE
+	(
+		SUM (
+			CASE
+			WHEN "T_TASKINFO"."ALLMANYINAME_BF" = '满意' THEN
+				1
+			WHEN "T_TASKINFO"."ALLMANYINAME_BF" = '基本满意' THEN
+				0.8
+			WHEN "T_TASKINFO"."ALLMANYINAME_BF" = '一般' THEN
+				0.6
+			ELSE
+				0
+			END
+		) / SUM (
+			CASE
+			WHEN "T_TASKINFO"."ALLMANYINAME_BF" IN (
+				'满意',
+				'不满意',
+				'基本满意',
+				'一般'
+			) THEN
+				1
+			ELSE
+				0
+			END
+		)
+	)
+END AS "MAN_YI_RATIO"
+FROM
+	"T_TASKINFO"
+WHERE
+	(
+	"T_TASKINFO"."ENDTIME" BETWEEN TO_DATE ( '2018-06-01 00:00:00', 'yyyy-MM-dd HH24:mi:ss' ) 
+		AND TO_DATE ( '2018-06-30 23:59:59', 'yyyy-MM-dd HH24:mi:ss' ) 
+		AND "T_TASKINFO"."INFOSOURCEID" IN (10, 68)
+		AND (
+			"T_TASKINFO"."DEPTCODE" = 20601
+			OR  EXISTS (
+				SELECT
+					U0."ID"
+				FROM
+					"T_INFO_SOLVING" U0
+				WHERE
+					(
+						U0."TASKID" = (T_TASKINFO."TASKID")
+						AND (
+							U0."EXECUTEDEPTCODE" = 20601
+							OR U0."DEPTCODE" = 20601
+						)
+						AND NOT (
+							U0."STATUS" = 3.0
+							AND U0."STATUS" IS NOT NULL
+						)
+					)
+			) 
+		)
+	)
+GROUP BY
+	F_REC_THREEDEPTNAME (
+		"T_TASKINFO"."EXECUTEDEPTCODE",
+		"T_TASKINFO"."DEPTCODE",
+		"T_TASKINFO"."TASKID"
+	)
+"""
+
+hotline_2_you="""
+SELECT
+	F_REC_THREEDEPTNAME (
+		"T_TASKINFO"."EXECUTEDEPTCODE",
+		"T_TASKINFO"."DEPTCODE",
+		"T_TASKINFO"."TASKID"
+	) AS "THREE",
+	COUNT (
+		F_REC_THREEDEPTNAME (
+			"T_TASKINFO"."EXECUTEDEPTCODE",
+			"T_TASKINFO"."DEPTCODE",
+			"T_TASKINFO"."TASKID"
+		)
+	) AS "SOU_COUNT",
+	SUM (
+		CASE
+		WHEN "T_TASKINFO"."ISFIRSTCONTACT" = 1.0 THEN
+			1
+		ELSE
+			0
+		END
+	) AS "FIRST_YES",
+	SUM (
+		CASE
+		WHEN "T_TASKINFO"."ISFIRSTCONTACT" = 0.0 THEN
+			1
+		ELSE
+			0
+		END
+	) AS "FIRST_NO",
+
+ SUM (
+	CASE
+	WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '实际解决' THEN
+		1
+	ELSE
+		0
+	END
+) AS "REAL_SOLVE",
+ SUM (
+	CASE
+	WHEN "T_TASKINFO"."CASEVALUATIONNAME" = '解释说明' THEN
+		1
+	ELSE
+		0
+	END
+) AS "JIE_SOLVE",
+ 
+
+ SUM (
+	CASE
+	WHEN "T_TASKINFO"."ALLMANYINAME_BF" = '满意' THEN
+		1
+	WHEN "T_TASKINFO"."ALLMANYINAME_BF" = '基本满意' THEN
+		0.8
+	WHEN "T_TASKINFO"."ALLMANYINAME_BF" = '一般' THEN
+		0.6
+	ELSE
+		0
+	END
+) AS "MAN_YI",
+ SUM (
+	CASE
+	WHEN "T_TASKINFO"."ALLMANYINAME_BF" IN (
+		'满意',
+		'不满意',
+		'基本满意',
+		'一般'
+	) THEN
+		1
+	ELSE
+		0
+	END
+) AS "MAN_YI_TOTAL"
+
+FROM
+	"T_TASKINFO"
+WHERE
+	(
+	"T_TASKINFO"."ENDTIME" BETWEEN TO_DATE ( '%(start_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+		AND TO_DATE ( '%(end_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+		AND "T_TASKINFO"."INFOSOURCEID" IN (10, 68)
+		AND (
+			"T_TASKINFO"."DEPTCODE" = 20601
+			OR  EXISTS (
+				SELECT
+					U0."ID"
+				FROM
+					"T_INFO_SOLVING" U0
+				WHERE
+					(
+						U0."TASKID" = (T_TASKINFO."TASKID")
+						AND (
+							U0."EXECUTEDEPTCODE" = 20601
+							OR U0."DEPTCODE" = 20601
+						)
+						AND NOT (
+							U0."STATUS" = 3.0
+							AND U0."STATUS" IS NOT NULL
+						)
+					)
+			) 
+		)
+	)
+GROUP BY
+	F_REC_THREEDEPTNAME (
+		"T_TASKINFO"."EXECUTEDEPTCODE",
+		"T_TASKINFO"."DEPTCODE",
+		"T_TASKINFO"."TASKID"
+	)
+"""

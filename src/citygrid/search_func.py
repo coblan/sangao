@@ -6,7 +6,8 @@ from django.db.models.aggregates import Count,Sum
 from django.db.models import Q,Exists, OuterRef,Func,F,Case,When,IntegerField,FloatField
 from django.db.models.functions import Cast
 from  django.utils.timezone import datetime,timedelta
-
+from django.db import connection
+from  .zhaoxiang_report_sql import hotline_shouli,hotline_2_you
 
 def get_query(model,page=1,perpage=200,filters={}):
     
@@ -98,7 +99,28 @@ def append_cat(query,model_name):
                                                     'T_CLASSINFO.infobccode=%s.infobccode'%model_name,
                                                     'T_CLASSINFO.infosccode=%s.infosccode'%model_name])
 
-def zhaoxiang_hotline_report(start,end,):
+def zhaoxiang_hotline_report(start,end):
+    dc ={
+        'start_time':start,
+        'end_time':end
+    }
+    cursor = connection.cursor()
+    cursor.execute(hotline_shouli%dc )
+    a1 = []
+    for i in cursor:
+        a1.append(i)
+    cursor.execute(hotline_2_you%dc)
+    a2=[]
+    for i in cursor:
+        a2.append(i)  
+    
+    return {
+        'a1':a1,
+        'a2':a2
+    }
+
+
+def zhaoxiang_hotline_report_old(start,end,):
     """
     @start:2018-06-01 00:00:00
     @start:2018-06-30 23:59:59
@@ -163,32 +185,28 @@ WHERE
         .annotate(is_ok=Exists(sovle ))\
         .filter( Q(deptcode='20601')| Q(is_ok=True))
     
-    #total =q2.count()
-    #print(total)
-    
     q2 = q2.annotate(three = Func(F('executedeptcode'), F('deptcode'),F('taskid'),function='F_REC_THREEDEPTNAME'))
     
     
     a2_1=q2.values('three').annotate(sou_count =Count('three'))
-       # .annotate(solve_score= Cast( F('sou_count')*5.0/total ,output_field=FloatField() ))
-    
+
     a2_2 =a2_1.annotate(first_yes=Sum( Case(When(isfirstcontact=1, then=1),default=0 ,output_field=IntegerField()) )) \
-        .annotate(first_no =Sum( Case(When(isfirstcontact=0, then=1),default=0 ,output_field=IntegerField()) ))\
-        .annotate(first_total = F('first_yes')+F('first_no'))\
-        .annotate(first_ratio=Case(When(first_total=0, then=1),default=F('first_yes')/F('first_total'),output_field=FloatField() ))
+        .annotate(first_no =Sum( Case(When(isfirstcontact=0, then=1),default=0 ,output_field=IntegerField()) ))
+        #.annotate(first_total = F('first_yes')+F('first_no'))\
+        #.annotate(first_ratio=Case(When(first_total=0, then=1),default=F('first_yes')/F('first_total'),output_field=FloatField() ))
     
     a2_4= a2_2.annotate(real_solve=Sum(Case(When(casevaluationname='实际解决',then=1),default=0,output_field=IntegerField())))\
-        .annotate(jie_solve=Sum(Case(When(casevaluationname='解释说明',then=1),default=0,output_field=IntegerField())))\
-        .annotate(total_solve=F('real_solve')+F('jie_solve'))\
-        .annotate(real_solve_ratio=Case(When(total_solve=0,then=0),default= F('real_solve')/ F('total_solve'),output_field=FloatField() ))\
-        .annotate(jie_solve_ratio=Case(When(total_solve=0,then=0),default= F('jie_solve')/ F('total_solve'),output_field=FloatField() ))
+        .annotate(jie_solve=Sum(Case(When(casevaluationname='解释说明',then=1),default=0,output_field=IntegerField())))
+        #.annotate(total_solve=F('real_solve')+F('jie_solve'))\
+        #.annotate(real_solve_ratio=Case(When(total_solve=0,then=0),default= F('real_solve')/ F('total_solve'),output_field=FloatField() ))\
+        #.annotate(jie_solve_ratio=Case(When(total_solve=0,then=0),default= F('jie_solve')/ F('total_solve'),output_field=FloatField() ))
     
     a2_5 =a2_4.annotate(man_yi=Sum(Case(When(allmanyiname_bf='满意',then=1),\
                                         When(allmanyiname_bf='基本满意', then=0.8),
                                         When( allmanyiname_bf='一般',then=0.6 ),
                                         default=0, output_field=FloatField()  )))\
         .annotate( man_yi_total=Sum(Case(When( allmanyiname_bf__in=['满意','基本满意','一般','不满意'] ,then=1  ),default=0  ,output_field=IntegerField() )) ) \
-        .annotate(man_yi_ratio = Case(When(man_yi_total=0,then=0),default= F('man_yi')/F('man_yi_total') , output_field=FloatField() ))
+        #.annotate(man_yi_ratio = Case(When(man_yi_total=0,then=0),default= F('man_yi')/F('man_yi_total') , output_field=FloatField() ))
     a1=list(a1)
     a2=list(a2_5)
     
