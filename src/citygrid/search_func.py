@@ -276,11 +276,11 @@ def zhaoxiang_grid_report(datestr):
     
     dc={}
     for index,sql in enumerate(sql_list):
-        last_time = time.clock()
+        last_time = time.time()
         cursor.execute(sql )     
         ls = read_cursor(cursor)
         dc['a%s'%(index+1)]=ls
-        print(time.clock()-last_time)
+        print(time.time()-last_time)
     return dc
 
 
