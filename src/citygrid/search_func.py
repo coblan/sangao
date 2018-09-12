@@ -7,7 +7,7 @@ from django.db.models import Q,Exists, OuterRef,Func,F,Case,When,IntegerField,Fl
 from django.db.models.functions import Cast
 from  django.utils.timezone import datetime,timedelta
 from django.db import connection
-from  .zhaoxiang_report_sql import hotline_shouli,hotline_2_you
+from  .zhaoxiang_report_sql import hotline_shouli,hotline_2_you,grid_a1,grid_a2,grid_a3,grid_a4
 
 def get_query(model,page=1,perpage=200,filters={}):
     
@@ -226,7 +226,98 @@ WHERE
     return out_dict
 
     
+
+
 def zhaoxiang_grid_report(datestr):
+    first_day_str = datetime.strptime(datestr,'%Y-%m-%d').replace(day=1).strftime('%Y-%m-%d')
+    crt_day_start = datestr+' 00:00:00'
+    crt_day_end =datestr+' 23:59:59'
+    first_day_start=first_day_str+' 00:00:00'
+    
+    #cursor = connection.cursor()
+    #cursor.execute(grid_a4%{'start_time':first_day_start,'end_time':crt_day_end})
+    
+    #ls=[]
+    #for row in cursor:
+        
+        #row_dc ={}
+        #for col_data, col in zip(row, cursor.description):
+            #row_dc[col[0]]=col_data
+        #ls.append(row_dc)
+    #return ls
+       
+   
+    
+    
+    #sql_str= '\n\n'.join([grid_a1%{'start_time':crt_day_start,'end_time':crt_day_end},
+                       #grid_a2%{'start_time':first_day_start,'end_time':crt_day_end},
+                       #grid_a3%{'start_time':first_day_start,'end_time':crt_day_end},
+                       #grid_a4%{'start_time':first_day_start,'end_time':crt_day_end}
+                       #])
+                       
+    sql_list =[grid_a1%{'start_time':crt_day_start,'end_time':crt_day_end},
+            grid_a2%{'start_time':first_day_start,'end_time':crt_day_end},
+            grid_a3%{'start_time':first_day_start,'end_time':crt_day_end},
+            grid_a4%{'start_time':first_day_start,'end_time':crt_day_end}
+        ]
+    #print(sql_str)
+    cursor = connection.cursor()
+    #cursor.execute(sql_str )
+    
+    #ls=[]
+    #for row in cursor:
+        
+        #row_dc ={}
+        #for col_data, col in zip(row, cursor.description):
+            #row_dc[col[0]]=col_data
+        #ls.append(row_dc)
+    #return ls
+    
+    dc={}
+    for index,sql in enumerate(sql_list):
+        cursor.execute(sql )
+        #cursor        
+        ls = read_cursor(cursor)
+        dc['a%s'%(index+1)]=ls
+    return dc
+
+
+
+#def zhaoxiang_grid_report_cache_table(datestr):
+    #first_day_str = datetime.strptime(datestr,'%Y-%m-%d').replace(day=1).strftime('%Y-%m-%d')
+    #crt_day_start = datestr+' 00:00:00'
+    #crt_day_end =datestr+' 23:59:59'
+    #first_day_start=first_day_str+' 00:00:00'
+    
+    #sovle= TInfoSolving.objects.filter(
+        #taskid=OuterRef('pk')).filter(
+        #Q(executedeptcode='20601')|Q(deptcode='20601')).exclude(status=3).only('id')
+    
+    #q1 = TTaskinfo.objects.filter(Q(discovertime__gte=crt_day_start,discovertime__lte=crt_day_end ) |\
+                                  #Q(discovertime__gte=first_day_start,discovertime__lte=crt_day_end))\
+        #.filter(streetcode='1806')\
+        #.filter(status__in=[3, 4, 5, 6, 7, 8, 9,100])\
+        #.annotate(is_exist=Exists(sovle )).filter(is_exist=True)
+    
+    #q1 = q1.annotate(three = Func(F('executedeptcode'), F('deptcode'),F('taskid'),function='F_REC_THREEDEPTNAME'))
+    
+    #ls=[]
+    #for inst in q1:
+        #dc ={
+            #'taskid':inst.taskid,
+            #'three':inst.three,
+            #'infotypename':inst.infotypename,
+            #'discovertime':inst.discovertime,
+            #''
+        #}
+    #return {
+        #'sanid':
+    #}
+    
+    
+    
+
+def zhaoxiang_grid_report_old(datestr):
     """
     """
     first_day_str = datetime.strptime(datestr,'%Y-%m-%d').replace(day=1).strftime('%Y-%m-%d')
@@ -265,10 +356,10 @@ def zhaoxiang_grid_report(datestr):
     a4=q2.filter(infosourceid= 1).values('upkeepername')\
         .annotate(count_keeper=Count(1))
     
-    a1=list(a1)
-    a2=list(a2)
-    a3=list(a3)
-    a4=list(a4)
+    #a1=list(a1)
+    #a2=list(a2)
+    #a3=list(a3)
+    #a4=list(a4)
     out_dict = {
         'a1':a1,
         'a2':a2,
@@ -276,3 +367,16 @@ def zhaoxiang_grid_report(datestr):
         'a4':a4
     }
     return out_dict
+
+
+#----------------------------------------------------------------------
+def read_cursor(cursor):
+    """"""
+    ls=[]
+    for row in cursor:
+        row_dc ={}
+        for col_data, col in zip(row, cursor.description):
+            row_dc[col[0]]=col_data
+        ls.append(row_dc)
+    return ls    
+    
