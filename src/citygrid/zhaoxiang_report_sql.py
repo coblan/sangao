@@ -579,7 +579,9 @@ WHERE
 		"T_TASKINFO"."DISCOVERTIME" BETWEEN TO_DATE ( '%(start_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
 		AND TO_DATE ( '%(end_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
 	AND "T_TASKINFO"."STREETCODE" = 1806 
-	AND "T_TASKINFO"."STATUS" IN ( 3, 4, 5, 6, 7, 8, 9, 100 ) 
+	AND "T_TASKINFO"."STATUS" IN ( 3, 4, 5, 6, 7, 8, 9, 100 )
+        AND "T_TASKINFO"."UPKEEPERNAME" IN ('张永泉', '徐洁'，'俞凤雷', '汪建军'，'周明', '徐卫东'，'张彩军', '许雅俊'，'范超群', '王坚'，'王陈佳', '瞿翠荣'，'姜嗣杰', '杨豪杰'，'崔文峰', '陈涛'，'张建峰', '唐晨'，'万亮', '毛建林'，'毛伟强', '陈建华', '王伟')
+    
 	
 AND EXISTS (
 SELECT
