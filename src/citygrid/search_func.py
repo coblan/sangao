@@ -8,6 +8,7 @@ from django.db.models.functions import Cast
 from  django.utils.timezone import datetime,timedelta
 from django.db import connection
 from  .zhaoxiang_report_sql import hotline_shouli,hotline_2_you,grid_a1,grid_a2,grid_a3,grid_a4
+import time
 
 def get_query(model,page=1,perpage=200,filters={}):
     
@@ -275,10 +276,11 @@ def zhaoxiang_grid_report(datestr):
     
     dc={}
     for index,sql in enumerate(sql_list):
-        cursor.execute(sql )
-        #cursor        
+        last_time = time.clock()
+        cursor.execute(sql )     
         ls = read_cursor(cursor)
         dc['a%s'%(index+1)]=ls
+        print(time.clock()-last_time)
     return dc
 
 
