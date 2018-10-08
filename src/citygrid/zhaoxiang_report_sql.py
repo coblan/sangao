@@ -1,4 +1,51 @@
-hotline_shouli="""
+hotline_shouli="""SELECT
+	F_REC_THREEDEPTNAME (
+		"T_TASKINFO"."EXECUTEDEPTCODE",
+		"T_TASKINFO"."DEPTCODE",
+		"T_TASKINFO"."TASKID"
+	) AS "THREE",
+	COUNT (
+		F_REC_THREEDEPTNAME (
+			"T_TASKINFO"."EXECUTEDEPTCODE",
+			"T_TASKINFO"."DEPTCODE",
+			"T_TASKINFO"."TASKID"
+		)
+	) AS "SHOU_LI"
+FROM
+	"T_TASKINFO"
+WHERE
+	(
+		percreatetime BETWEEN TO_DATE ( '%(start_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+		AND TO_DATE ( '%(end_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+		AND "T_TASKINFO"."INFOSOURCEID" IN (10, 68)
+		AND (
+			"T_TASKINFO"."DEPTCODE" = 20601
+			OR  EXISTS (
+				SELECT
+					U0."ID"
+				FROM
+					"T_INFO_SOLVING" U0
+				WHERE
+					(
+						U0."TASKID" = (T_TASKINFO."TASKID")
+						AND (
+							U0."EXECUTEDEPTCODE" = 20601
+							OR U0."DEPTCODE" = 20601
+						)
+						AND U0."STATUS" != 3.0
+					)
+			) 
+		)
+	)
+GROUP BY
+	F_REC_THREEDEPTNAME (
+		"T_TASKINFO"."EXECUTEDEPTCODE",
+		"T_TASKINFO"."DEPTCODE",
+		"T_TASKINFO"."TASKID"
+	)
+
+"""
+hotline_shouli_old="""
 SELECT
 	F_REC_THREEDEPTNAME (
 		"T_TASKINFO"."EXECUTEDEPTCODE",
@@ -470,10 +517,7 @@ WHERE
 							U0."EXECUTEDEPTCODE" = 20601
 							OR U0."DEPTCODE" = 20601
 						)
-						AND NOT (
-							U0."STATUS" = 3.0
-							AND U0."STATUS" IS NOT NULL
-						)
+						 AND U0."STATUS" != 3
 					)
 			) 
 		)
