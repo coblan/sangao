@@ -15,7 +15,7 @@ FROM
 	"T_TASKINFO"
 WHERE
 	(
-		discovertime BETWEEN TO_DATE ( '%(start_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+		percreatetime BETWEEN TO_DATE ( '%(start_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
 		AND TO_DATE ( '%(end_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
 		AND "T_TASKINFO"."INFOSOURCEID" IN (10, 68)
 		AND (
