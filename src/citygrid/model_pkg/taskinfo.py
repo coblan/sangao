@@ -373,7 +373,7 @@ class TTaskinfo(models.Model):
     allmanyi_jz = models.FloatField(blank=True, null=True)
     inertview_jz = models.CharField(max_length=2000, blank=True, null=True)
     isreply_jz = models.FloatField(blank=True, null=True)
-    enterpriseinvoled = models.FloatField(blank=True, null=True)
+    enterpriseinvoled = models.FloatField(blank=True, null=True,db_column='ENTERPRISEINVOLED')
     enterpriseinvoledname = models.CharField(max_length=100, blank=True, null=True)
     areahandleresult = models.CharField(max_length=1, blank=True, null=True)
     areahandleresultname = models.CharField(max_length=100, blank=True, null=True)
