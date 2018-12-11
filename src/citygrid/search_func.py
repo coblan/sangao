@@ -11,6 +11,7 @@ from  .zhaoxiang_report_sql import hotline_shouli,hotline_2_you,grid_a1,grid_a2,
 import time
 
 from .search_fucns.on_and_off import on_and_off_task 
+from .search_fucns.keeper_realtime import keeper_case_count
 
 def get_query(model,page=1,perpage=200,filters={}):
     
