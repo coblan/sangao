@@ -13,6 +13,24 @@ import time
 from .search_fucns.on_and_off import on_and_off_task 
 from .search_fucns.keeper_realtime import keeper_case_count
 
+
+#----------------------------------------------------------------------
+def exec_sql(sql):
+    """"""
+    cursor = connection.cursor()
+    cursor.execute(sql )
+    
+    rows=[]
+    for row in cursor:
+        row_dc ={}
+        for col_data, col in zip(row, cursor.description):
+            row_dc[col[0]]=col_data
+        rows.append(row_dc)
+    
+    return rows 
+    
+    
+
 def get_query(model,page=1,perpage=200,filters={}):
     
     model_cls = getattr ( citygrid_models,model)
