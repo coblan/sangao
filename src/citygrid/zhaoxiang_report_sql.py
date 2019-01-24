@@ -655,7 +655,25 @@ U0."TASKID" = ( T_TASKINFO."TASKID" )
 GROUP BY
 F_REC_THREEDEPTNAME ( "T_TASKINFO"."EXECUTEDEPTCODE", "T_TASKINFO"."DEPTCODE", "T_TASKINFO"."TASKID" )"""
 
-grid_a3="""SELECT
+
+gird_a3="""
+SELECT
+	REPORTER,
+	COUNT( 1 ) AS "COUNT_WEI" 
+
+FROM
+	CITYGRID.T_TASKINFO main 
+WHERE
+	1 = 1 
+	AND discovertime BETWEEN TO_DATE( '%(start_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+	AND TO_DATE( '%(end_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+	AND InfoSourceid IN ( 61 ) 
+	AND STREETCODE IN ( '1806' ) 
+GROUP BY
+REPORTER
+"""
+
+grid_a3_almost_right="""SELECT
 	"T_INFO_MAIN"."REPORTER",
 	COUNT( 1 ) AS "COUNT_WEI" 
 FROM
@@ -712,8 +730,24 @@ U0."TASKID" = ( T_TASKINFO."TASKID" )
 GROUP BY
 "T_TASKINFO"."REPORTER"
 """
+grid_4="""
+SELECT
+	UPKEEPERNAME AS KEEPERNAME,
+	COUNT( 1 ) AS COUNT_KEEPER
 
-grid_a4="""
+FROM
+	CITYGRID.T_TASKINFO main 
+WHERE
+	1 = 1 
+	AND discovertime BETWEEN TO_DATE( '%(start_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+	AND TO_DATE( '%(end_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+	AND InfoSourceid IN ( 1 ) 
+	AND STREETCODE IN ( '1806' ) 
+
+	GROUP BY
+	UPKEEPERNAME
+"""
+grid_a4_almost_right="""
 SELECT
 	F_KEEPERNAME_BYKEEPERSN ( T_INFO_MAIN.KeeperSN ) AS "KEEPERNAME",
 	COUNT( 1 ) AS "COUNT_KEEPER" 
