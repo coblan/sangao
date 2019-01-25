@@ -643,25 +643,53 @@ U0."TASKID" = ( T_TASKINFO."TASKID" )
 GROUP BY
 F_REC_THREEDEPTNAME ( "T_TASKINFO"."EXECUTEDEPTCODE", "T_TASKINFO"."DEPTCODE", "T_TASKINFO"."TASKID" )"""
 
-
 grid_a3="""
 SELECT
-	REPORTER,
-	COUNT( 1 ) AS "COUNT_WEI" 
-
+	REPORTER ,
+		COUNT( 1 ) AS "COUNT_WEI" 
 FROM
-	CITYGRID.T_TASKINFO main 
+	CITYGRID.T_INFO_MAIN main 
 WHERE
 	1 = 1 
 	AND discovertime BETWEEN TO_DATE( '%(start_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
 	AND TO_DATE( '%(end_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
-	AND InfoSourceid IN ( 61 ) 
-	AND STREETCODE IN ( '1806' ) 
-GROUP BY
-REPORTER
+	AND status IN ( 3, 4, 5, 6, 7, 8, 9,100 ) 
+	AND InfoSourceid = 61  
+	AND STREETCODE = '1806' 
+	AND (
+	EXISTS (
+SELECT
+	1 
+FROM
+	CITYGRID.t_info_solving ts 
+WHERE
+	( ts.executedeptcode = '20601' OR ts.DeptCode = '20601' ) 
+	AND ts.taskid = main.taskid 
+	AND 1 = 1 
+	)) 
+	GROUP BY
+	REPORTER
 """
 
-grid_a3_almost_right="""SELECT
+#grid_a3="""
+#SELECT
+	#REPORTER,
+	#COUNT( 1 ) AS "COUNT_WEI" 
+
+#FROM
+	#CITYGRID.T_TASKINFO main 
+#WHERE
+	#1 = 1 
+	#AND discovertime BETWEEN TO_DATE( '%(start_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+	#AND TO_DATE( '%(end_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+	#AND InfoSourceid IN ( 61 ) 
+	#AND STREETCODE IN ( '1806' ) 
+#GROUP BY
+#REPORTER
+#"""
+
+grid_a3_almost_right="""
+SELECT
 	"T_INFO_MAIN"."REPORTER",
 	COUNT( 1 ) AS "COUNT_WEI" 
 FROM
@@ -718,23 +746,55 @@ U0."TASKID" = ( T_TASKINFO."TASKID" )
 GROUP BY
 "T_TASKINFO"."REPORTER"
 """
+
 grid_a4="""
 SELECT
-	UPKEEPERNAME AS KEEPERNAME,
-	COUNT( 1 ) AS COUNT_KEEPER
-
+	CITYGRID.F_KEEPERNAME_BYKEEPERSN ( KeeperSN ) AS "KEEPERNAME",
+	COUNT( 1 ) AS "COUNT_KEEPER" 
 FROM
-	CITYGRID.T_TASKINFO main 
+	
+	CITYGRID.T_INFO_MAIN main 
 WHERE
 	1 = 1 
 	AND discovertime BETWEEN TO_DATE( '%(start_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
 	AND TO_DATE( '%(end_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+	AND (
+	status IN ( 100 ) 
+	OR status IN ( 3, 4, 5, 6, 7, 8, 9 )) 
 	AND InfoSourceid IN ( 1 ) 
 	AND STREETCODE IN ( '1806' ) 
-
+	AND (
+	EXISTS (
+SELECT
+	1 
+FROM
+	CITYGRID.t_info_solving ts 
+WHERE
+	( ts.executedeptcode = '20601' OR ts.DeptCode = '20601' ) 
+	AND ts.taskid = main.taskid 
+	AND 1 = 1 
+	)) 
 	GROUP BY
-	UPKEEPERNAME
+	F_KEEPERNAME_BYKEEPERSN ( KeeperSN )
 """
+
+#grid_a4="""
+#SELECT
+	#UPKEEPERNAME AS KEEPERNAME,
+	#COUNT( 1 ) AS COUNT_KEEPER
+
+#FROM
+	#CITYGRID.T_TASKINFO main 
+#WHERE
+	#1 = 1 
+	#AND discovertime BETWEEN TO_DATE( '%(start_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+	#AND TO_DATE( '%(end_time)s', 'yyyy-MM-dd HH24:mi:ss' ) 
+	#AND InfoSourceid IN ( 1 ) 
+	#AND STREETCODE IN ( '1806' ) 
+
+	#GROUP BY
+	#UPKEEPERNAME
+#"""
 grid_a4_almost_right="""
 SELECT
 	F_KEEPERNAME_BYKEEPERSN ( T_INFO_MAIN.KeeperSN ) AS "KEEPERNAME",
